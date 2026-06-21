@@ -1,0 +1,26 @@
+[project]
+name = "chatgpt2api-reg"
+version = "0.1.0"
+description = "Dockerized local register tool with web console"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "curl-cffi>=0.15.0",
+    "fastapi>=0.136.0",
+    "python-multipart>=0.0.20",
+    "uvicorn>=0.35.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "."}
+packages = [
+    "reg",
+    "services",
+    "services.register",
+    "services.storage",
+    "utils",
+]

@@ -1,0 +1,6 @@
+__pycache__/
+data/
+output/
+settings.json
+config.json
+register.json.bak

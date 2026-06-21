@@ -1,0 +1,13 @@
+{
+  "output_dir": "/app/reg/output",
+  "count": 10,
+  "threads": 5,
+  "proxy": "",
+  "server": "https://your-server.example",
+  "auth_key": "replace-with-your-auth-key",
+  "min_active_accounts": 60,
+  "monitor_interval_seconds": 30,
+  "upload_to_cloud": true,
+  "enable_flaresolverr": false,
+  "flaresolverr_url": ""
+}

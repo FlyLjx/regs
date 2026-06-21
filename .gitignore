@@ -1,0 +1,15 @@
+.git.broken-empty/
+.github/.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+.docker-tmp/
+
+reg/.env
+reg/settings.json
+reg/config.json
+reg/register.json
+reg/data/
+reg/output/
+
+E*/

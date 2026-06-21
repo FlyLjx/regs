@@ -1,0 +1,30 @@
+{
+  "mail": {
+    "request_timeout": 30,
+    "wait_timeout": 30,
+    "wait_interval": 2,
+    "providers": [
+      {
+        "enable": true,
+        "type": "yyds_mail",
+        "api_base": "https://maliapi.215.im/v1",
+        "admin_email": "",
+        "admin_password": "",
+        "domain": [],
+        "subdomain": "",
+        "email_prefix": "",
+        "api_key": "",
+        "wildcard": false
+      }
+    ]
+  },
+  "proxy": "",
+  "flaresolverr": {
+    "preload": true,
+    "url": "http://127.0.0.1:8191",
+    "max_timeout_ms": 60000,
+    "enabled": false
+  },
+  "total": 20,
+  "threads": 3
+}
