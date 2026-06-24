@@ -61,11 +61,25 @@ def normalize_register_config(
     enable_warp_registration: bool = False,
     enable_flaresolverr: bool,
     flaresolverr_url: str,
+    flaresolverr_preload: bool | None = None,
+    flaresolverr_max_solve_attempts: int | None = None,
 ) -> dict[str, Any]:
     mail = raw.get("mail") if isinstance(raw.get("mail"), dict) else {}
     flaresolverr = raw.get("flaresolverr") if isinstance(raw.get("flaresolverr"), dict) else {}
     resolved_proxy = str(proxy or raw.get("proxy") or "").strip()
     resolved_flaresolverr_url = str(flaresolverr_url or flaresolverr.get("url") or "").strip()
+    resolved_preload = bool(flaresolverr.get("preload", False)) if flaresolverr_preload is None else bool(flaresolverr_preload)
+    try:
+        resolved_max_solve_attempts = max(
+            1,
+            int(
+                flaresolverr_max_solve_attempts
+                if flaresolverr_max_solve_attempts is not None
+                else flaresolverr.get("max_solve_attempts") or 1
+            ),
+        )
+    except (TypeError, ValueError):
+        resolved_max_solve_attempts = 1
     return {
         "mail": {
             "request_timeout": float(mail.get("request_timeout") or 30),
@@ -79,7 +93,8 @@ def normalize_register_config(
             "enabled": bool(enable_flaresolverr and resolved_flaresolverr_url),
             "url": resolved_flaresolverr_url,
             "max_timeout_ms": max(1000, int(flaresolverr.get("max_timeout_ms") or 60000)),
-            "preload": bool(flaresolverr.get("preload", True)),
+            "preload": resolved_preload,
+            "max_solve_attempts": resolved_max_solve_attempts,
         },
         "total": max(1, int(count or raw.get("total") or 1)),
         "threads": max(1, int(threads or raw.get("threads") or 1)),
@@ -334,6 +349,8 @@ def run_local_register_job(
     enable_warp_registration: bool = False,
     enable_flaresolverr: bool = False,
     flaresolverr_url: str = "",
+    flaresolverr_preload: bool | None = None,
+    flaresolverr_max_solve_attempts: int | None = None,
     accounts_file: Path | None = None,
     import_only: bool = False,
     upload_to_cloud: bool = False,
@@ -366,6 +383,8 @@ def run_local_register_job(
             enable_warp_registration=enable_warp_registration,
             enable_flaresolverr=enable_flaresolverr,
             flaresolverr_url=str(flaresolverr_url or "").strip(),
+            flaresolverr_preload=flaresolverr_preload,
+            flaresolverr_max_solve_attempts=flaresolverr_max_solve_attempts,
         )
         apply_register_config(config_data)
         logger(
@@ -373,6 +392,8 @@ def run_local_register_job(
             f"代理={'直连' if not config_data['proxy'] else config_data['proxy']}，"
             f"WARP={'开启' if config_data['enable_warp_registration'] else '关闭'}，"
             f"FlareSolverr={'开启' if config_data['flaresolverr']['enabled'] else '关闭'}，"
+            f"预热={'开启' if config_data['flaresolverr']['preload'] else '按需'}，"
+            f"求解上限={config_data['flaresolverr']['max_solve_attempts']}，"
             f"线程={config_data['threads']}，数量={config_data['total']}"
         )
         accounts, failures = run_register_batch(
@@ -436,6 +457,8 @@ def check_cloud_and_refill(
     enable_warp_registration: bool = False,
     enable_flaresolverr: bool = False,
     flaresolverr_url: str = "",
+    flaresolverr_preload: bool | None = None,
+    flaresolverr_max_solve_attempts: int | None = None,
     upload_to_cloud: bool = True,
     logger=log,
     progress_callback=None,
@@ -476,6 +499,8 @@ def check_cloud_and_refill(
             enable_warp_registration=enable_warp_registration,
             enable_flaresolverr=enable_flaresolverr,
             flaresolverr_url=flaresolverr_url,
+            flaresolverr_preload=flaresolverr_preload,
+            flaresolverr_max_solve_attempts=flaresolverr_max_solve_attempts,
             upload_to_cloud=upload_to_cloud,
             server=server,
             auth_key=auth_key,

@@ -38,7 +38,8 @@ config = {
         "enabled": True,
         "url": "",
         "max_timeout_ms": 60000,
-        "preload": True,
+        "preload": False,
+        "max_solve_attempts": 1,
     },
     "total": 10,
     "threads": 3,
@@ -290,11 +291,16 @@ def _normalize_flaresolverr_config(value: Any) -> dict[str, Any]:
         max_timeout_ms = max(1000, int(source.get("max_timeout_ms") or 60000))
     except (TypeError, ValueError):
         max_timeout_ms = 60000
+    try:
+        max_solve_attempts = max(1, int(source.get("max_solve_attempts") or 1))
+    except (TypeError, ValueError):
+        max_solve_attempts = 1
     return {
         "enabled": _truthy(source.get("enabled"), False) and bool(api_url),
         "url": api_url,
         "max_timeout_ms": max_timeout_ms,
-        "preload": _truthy(source.get("preload"), True),
+        "preload": _truthy(source.get("preload"), False),
+        "max_solve_attempts": max_solve_attempts,
     }
 
 
@@ -308,7 +314,8 @@ def _env_flaresolverr_config() -> dict[str, Any]:
     url = os.getenv("CHATGPT2API_FLARESOLVERR_URL") or os.getenv("FLARESOLVERR_URL")
     max_timeout_ms = os.getenv("CHATGPT2API_FLARESOLVERR_MAX_TIMEOUT_MS")
     preload = os.getenv("CHATGPT2API_FLARESOLVERR_PRELOAD")
-    if enabled is None and url is None and max_timeout_ms is None and preload is None:
+    max_solve_attempts = os.getenv("CHATGPT2API_FLARESOLVERR_MAX_SOLVE_ATTEMPTS")
+    if enabled is None and url is None and max_timeout_ms is None and preload is None and max_solve_attempts is None:
         return {}
     return {
         key: value
@@ -317,6 +324,7 @@ def _env_flaresolverr_config() -> dict[str, Any]:
             "url": url,
             "max_timeout_ms": max_timeout_ms,
             "preload": preload,
+            "max_solve_attempts": max_solve_attempts,
         }.items()
         if value is not None
     }
@@ -345,7 +353,8 @@ def _auto_flaresolverr_config() -> dict[str, Any]:
                     "enabled": True,
                     "url": api_url,
                     "max_timeout_ms": os.getenv("CHATGPT2API_FLARESOLVERR_MAX_TIMEOUT_MS") or 60000,
-                    "preload": os.getenv("CHATGPT2API_FLARESOLVERR_PRELOAD") or True,
+                    "preload": os.getenv("CHATGPT2API_FLARESOLVERR_PRELOAD") or False,
+                    "max_solve_attempts": os.getenv("CHATGPT2API_FLARESOLVERR_MAX_SOLVE_ATTEMPTS") or 1,
                 }
                 return dict(_flaresolverr_autodetect_cache)
         _flaresolverr_autodetect_cache = {}
@@ -593,6 +602,7 @@ class PlatformRegistrar:
         self.platform_auth_code = ""
         self.user_agent = user_agent
         self.sec_ch_ua = sec_ch_ua
+        self.flaresolverr_solve_attempts = 0
 
     def close(self) -> None:
         self.session.close()
@@ -618,7 +628,14 @@ class PlatformRegistrar:
         settings = _current_flaresolverr_config()
         if not settings["enabled"]:
             return False
-        step(index, f"开始 FlareSolverr 预热 Cloudflare（{_proxy_log_label(self.proxy)}）")
+        if self.flaresolverr_solve_attempts >= int(settings["max_solve_attempts"]):
+            step(index, f"已达到 FlareSolverr 求解上限 {settings['max_solve_attempts']} 次，停止继续求解", "yellow")
+            return False
+        self.flaresolverr_solve_attempts += 1
+        step(
+            index,
+            f"开始 FlareSolverr 求解 Cloudflare（{_proxy_log_label(self.proxy)}，第 {self.flaresolverr_solve_attempts}/{settings['max_solve_attempts']} 次）",
+        )
         cookie_count, solved_user_agent = solve_with_flaresolverr(self.session, target_url, self.proxy)
         if solved_user_agent:
             self.user_agent = solved_user_agent
@@ -657,9 +674,12 @@ class PlatformRegistrar:
         resp, error = request_with_local_retry(self.session, "get", authorize_url, headers=self._navigate_headers(f"{platform_base}/"), allow_redirects=True, verify=False)
         if _is_cloudflare_challenge(resp) and flaresolverr_settings["enabled"]:
             retry_url = str(getattr(resp, "url", "") or authorize_url)
-            step(index, "FlareSolverr 预热后仍被 Cloudflare 拦截，重新求解并重试", "yellow")
-            self._solve_with_flaresolverr(retry_url, index)
-            resp, error = request_with_local_retry(self.session, "get", authorize_url, headers=self._navigate_headers(f"{platform_base}/"), allow_redirects=True, verify=False)
+            if solved_with_flaresolverr:
+                step(index, "FlareSolverr 预热后仍被 Cloudflare 拦截，尝试再次求解并重试", "yellow")
+            else:
+                step(index, "检测到 Cloudflare 拦截，按需启用 FlareSolverr 求解", "yellow")
+            if self._solve_with_flaresolverr(retry_url, index):
+                resp, error = request_with_local_retry(self.session, "get", authorize_url, headers=self._navigate_headers(f"{platform_base}/"), allow_redirects=True, verify=False)
         if resp is None or resp.status_code != 200:
             err = _response_json(resp).get("error", {}) if resp is not None else {}
             detail = f": {err.get('code', '')} - {err.get('message', '')}".strip(" -") if err else ""

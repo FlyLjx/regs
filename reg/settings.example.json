@@ -10,5 +10,7 @@
   "monitor_interval_seconds": 30,
   "upload_to_cloud": true,
   "enable_flaresolverr": false,
-  "flaresolverr_url": "http://flaresolverr:8191"
+  "flaresolverr_url": "http://flaresolverr:8191",
+  "flaresolverr_preload": false,
+  "flaresolverr_max_solve_attempts": 1
 }

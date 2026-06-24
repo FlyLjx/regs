@@ -57,6 +57,8 @@ createApp({
       upload_to_cloud: true,
       enable_flaresolverr: false,
       flaresolverr_url: "",
+      flaresolverr_preload: false,
+      flaresolverr_max_solve_attempts: 1,
     })
 
     const editor = reactive({
@@ -503,12 +505,18 @@ createApp({
                         <el-input v-model="settings.flaresolverr_url" placeholder="http://flaresolverr:8191" clearable />
                       </el-form-item>
                     </el-col>
+                    <el-col :xs="24" :md="12">
+                      <el-form-item label="单任务最大求解次数">
+                        <el-input-number v-model="settings.flaresolverr_max_solve_attempts" :min="1" :max="10" controls-position="right" class="w-full" />
+                      </el-form-item>
+                    </el-col>
                   </el-row>
 
                   <el-space wrap>
                     <el-switch v-model="settings.upload_to_cloud" inline-prompt active-text="默认上传云端" inactive-text="仅本地模式" />
                     <el-switch v-model="settings.enable_warp_registration" inline-prompt active-text="WARP 注册开" inactive-text="WARP 注册关" />
                     <el-switch v-model="settings.enable_flaresolverr" inline-prompt active-text="FlareSolverr 开" inactive-text="FlareSolverr 关" />
+                    <el-switch v-model="settings.flaresolverr_preload" inline-prompt active-text="预热求解开" inactive-text="按需求解" />
                     <el-button :loading="proxyTesting" @click="testProxy">测试代理</el-button>
                   </el-space>
                 </el-form>

@@ -21,9 +21,10 @@
   "proxy": "",
   "enable_warp_registration": false,
   "flaresolverr": {
-    "preload": true,
+    "preload": false,
     "url": "http://flaresolverr:8191",
     "max_timeout_ms": 60000,
+    "max_solve_attempts": 1,
     "enabled": false
   },
   "total": 20,

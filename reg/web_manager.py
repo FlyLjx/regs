@@ -31,6 +31,8 @@ DEFAULT_WEB_SETTINGS: dict[str, Any] = {
     "upload_to_cloud": True,
     "enable_flaresolverr": False,
     "flaresolverr_url": "",
+    "flaresolverr_preload": False,
+    "flaresolverr_max_solve_attempts": 1,
 }
 
 
@@ -132,6 +134,8 @@ class RegWebManager:
         payload["server"] = str(payload.get("server") or "").strip()
         payload["auth_key"] = str(payload.get("auth_key") or "").strip()
         payload["flaresolverr_url"] = str(payload.get("flaresolverr_url") or "").strip()
+        payload["flaresolverr_preload"] = _safe_bool(payload.get("flaresolverr_preload"), False)
+        payload["flaresolverr_max_solve_attempts"] = _safe_int(payload.get("flaresolverr_max_solve_attempts"), 1, 1)
         payload["proxy"] = str(payload.get("proxy") or "").strip()
         return payload
 
@@ -159,6 +163,8 @@ class RegWebManager:
         normalized["enable_warp_registration"] = _safe_bool(normalized.get("enable_warp_registration"), False)
         normalized["enable_flaresolverr"] = _safe_bool(normalized.get("enable_flaresolverr"), False)
         normalized["flaresolverr_url"] = str(normalized.get("flaresolverr_url") or "").strip()
+        normalized["flaresolverr_preload"] = _safe_bool(normalized.get("flaresolverr_preload"), False)
+        normalized["flaresolverr_max_solve_attempts"] = _safe_int(normalized.get("flaresolverr_max_solve_attempts"), 1, 1)
         SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
         SETTINGS_FILE.write_text(json.dumps(normalized, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         return normalized
@@ -318,6 +324,8 @@ class RegWebManager:
             "enable_warp_registration": _safe_bool(settings.get("enable_warp_registration"), False),
             "enable_flaresolverr": _safe_bool(settings.get("enable_flaresolverr"), False),
             "flaresolverr_url": str(settings.get("flaresolverr_url") or "").strip(),
+            "flaresolverr_preload": _safe_bool(settings.get("flaresolverr_preload"), False),
+            "flaresolverr_max_solve_attempts": _safe_int(settings.get("flaresolverr_max_solve_attempts"), 1, 1),
             "upload_to_cloud": _safe_bool(settings.get("upload_to_cloud"), True),
             "server": str(settings.get("server") or "").strip(),
             "auth_key": str(settings.get("auth_key") or "").strip(),
@@ -385,6 +393,8 @@ class RegWebManager:
                 proxy=kwargs["proxy"],
                 enable_flaresolverr=kwargs["enable_flaresolverr"],
                 flaresolverr_url=kwargs["flaresolverr_url"],
+                flaresolverr_preload=kwargs["flaresolverr_preload"],
+                flaresolverr_max_solve_attempts=kwargs["flaresolverr_max_solve_attempts"],
                 upload_to_cloud=kwargs["upload_to_cloud"],
                 logger=self._append_log,
                 progress_callback=self._update_progress,
@@ -412,6 +422,8 @@ class RegWebManager:
                     proxy=kwargs["proxy"],
                     enable_flaresolverr=kwargs["enable_flaresolverr"],
                     flaresolverr_url=kwargs["flaresolverr_url"],
+                    flaresolverr_preload=kwargs["flaresolverr_preload"],
+                    flaresolverr_max_solve_attempts=kwargs["flaresolverr_max_solve_attempts"],
                     accounts_file=accounts_file,
                     import_only=True,
                     upload_to_cloud=True,
@@ -470,6 +482,8 @@ class RegWebManager:
                                 proxy=kwargs["proxy"],
                                 enable_flaresolverr=kwargs["enable_flaresolverr"],
                                 flaresolverr_url=kwargs["flaresolverr_url"],
+                                flaresolverr_preload=kwargs["flaresolverr_preload"],
+                                flaresolverr_max_solve_attempts=kwargs["flaresolverr_max_solve_attempts"],
                                 upload_to_cloud=kwargs["upload_to_cloud"],
                                 logger=self._append_log,
                                 progress_callback=self._update_progress,
