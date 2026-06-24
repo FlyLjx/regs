@@ -21,7 +21,7 @@
   "proxy": "",
   "flaresolverr": {
     "preload": true,
-    "url": "http://127.0.0.1:8191",
+    "url": "http://flaresolverr:8191",
     "max_timeout_ms": 60000,
     "enabled": false
   },

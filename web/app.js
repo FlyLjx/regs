@@ -488,7 +488,7 @@ createApp({
                     </el-col>
                     <el-col :xs="24" :md="12">
                       <el-form-item label="FlareSolverr URL">
-                        <el-input v-model="settings.flaresolverr_url" placeholder="http://127.0.0.1:8191" clearable />
+                        <el-input v-model="settings.flaresolverr_url" placeholder="http://flaresolverr:8191" clearable />
                       </el-form-item>
                     </el-col>
                   </el-row>

@@ -9,5 +9,5 @@
   "monitor_interval_seconds": 30,
   "upload_to_cloud": true,
   "enable_flaresolverr": false,
-  "flaresolverr_url": ""
+  "flaresolverr_url": "http://flaresolverr:8191"
 }

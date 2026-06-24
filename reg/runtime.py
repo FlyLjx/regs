@@ -43,7 +43,7 @@ DEFAULT_REGISTER_CONFIG: dict[str, Any] = {
     "proxy": "",
     "flaresolverr": {
         "preload": True,
-        "url": "http://127.0.0.1:8191",
+        "url": "http://flaresolverr:8191",
         "max_timeout_ms": 60000,
         "enabled": False,
     },

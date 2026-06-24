@@ -319,7 +319,7 @@ def _auto_flaresolverr_config() -> dict[str, Any]:
         if auto_enabled is not None and not _truthy(auto_enabled, True):
             _flaresolverr_autodetect_cache = {}
             return {}
-        for api_url in ("http://127.0.0.1:8191", "http://localhost:8191"):
+        for api_url in ("http://flaresolverr:8191", "http://127.0.0.1:8191", "http://localhost:8191"):
             if _probe_flaresolverr_url(api_url):
                 _flaresolverr_autodetect_cache = {
                     "enabled": True,

@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: chatgpt2api-reg
+    depends_on:
+      - flaresolverr
     command: ["uvicorn", "reg.web_main:app", "--host", "0.0.0.0", "--port", "8080", "--access-log", "--reload", "--reload-dir", "/app/reg", "--reload-dir", "/app/services", "--reload-dir", "/app/utils", "--reload-dir", "/app/web"]
     ports:
       - "8080:8080"
@@ -12,4 +14,16 @@ services:
       CHATGPT2API_REG_APP_ROOT: /app/reg
     volumes:
       - ./:/app
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      TZ: Asia/Shanghai
+      LOG_LEVEL: info
+      LOG_HTML: "false"
+      CAPTCHA_SOLVER: none
+    ports:
+      - "8191:8191"
     restart: unless-stopped

@@ -46,6 +46,7 @@ docker compose up -d
 ## 访问地址
 
 - `http://localhost:8080`
+- `FlareSolverr: http://localhost:8191`
 
 ## 持久化目录
 
@@ -77,4 +78,6 @@ docker compose up -d
 ## 说明
 
 - Web 页面支持保存配置、开始注册、检查补号、开启/停止监控、导出日志。
+- `docker compose up -d` 会同时拉起 `chatgpt2api-reg` 和 `flaresolverr` 两个容器。
+- Docker 环境下建议将 FlareSolverr 地址填写为 `http://flaresolverr:8191`。
 - 实际注册是否成功仍取决于邮箱供应商、代理、FlareSolverr 和上游环境是否可用。
