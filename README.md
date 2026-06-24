@@ -2,6 +2,25 @@
 
 这是一个适合 Docker 部署的独立注册器版本，提供 Web 控制台。
 
+## 云端部署
+
+推荐服务器直接使用 GitHub Container Registry 镜像，不在服务器本地构建：
+
+```bash
+git clone https://github.com/FlyLjx/regs.git
+cd regs
+docker compose pull
+docker compose up -d
+```
+
+更新版本：
+
+```bash
+git pull
+docker compose pull
+docker compose up -d
+```
+
 ## 开发模式
 
 开发模式会挂载整个项目源码，并启用 `uvicorn --reload`。

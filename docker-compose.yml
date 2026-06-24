@@ -1,12 +1,9 @@
 services:
   chatgpt2api-reg:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/flyljx/regs:latest
     container_name: chatgpt2api-reg
     depends_on:
       - flaresolverr
-    command: ["uvicorn", "reg.web_main:app", "--host", "0.0.0.0", "--port", "8080", "--access-log", "--reload", "--reload-dir", "/app/reg", "--reload-dir", "/app/services", "--reload-dir", "/app/utils", "--reload-dir", "/app/web"]
     ports:
       - "8080:8080"
     environment:
