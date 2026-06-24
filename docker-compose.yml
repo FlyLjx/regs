@@ -4,7 +4,6 @@ services:
     container_name: chatgpt2api-reg
     depends_on:
       - flaresolverr
-      - warp
     ports:
       - "8080:8080"
     environment:
@@ -31,4 +30,18 @@ services:
     container_name: warp
     ports:
       - "1080:1080"
+    environment:
+      TZ: Asia/Shanghai
+      WARP_SLEEP: "5"
+    device_cgroup_rules:
+      - "c 10:200 rwm"
+    cap_add:
+      - MKNOD
+      - AUDIT_WRITE
+      - NET_ADMIN
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./warp-data:/var/lib/cloudflare-warp
     restart: unless-stopped

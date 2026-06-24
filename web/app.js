@@ -42,6 +42,8 @@ createApp({
     const settingsTab = ref("basic")
     const logCursor = ref(0)
     const pollTimer = ref(null)
+    const runtimeRefreshing = ref(false)
+    const cloudRefreshing = ref(false)
 
     const settings = reactive({
       count: 20,
@@ -159,18 +161,26 @@ createApp({
     }
 
     async function refreshRuntime() {
-      const [runtimeData, logData] = await Promise.all([
-        apiRequest("/api/runtime"),
-        apiRequest(`/api/logs?cursor=${logCursor.value}`),
-      ])
-      patchObject(runtime, runtimeData || {})
-      runtime.progress = runtimeData?.progress || runtime.progress
-      appendLogs(logData?.items || [])
-      logCursor.value = logData?.cursor || logCursor.value
+      if (runtimeRefreshing.value) return
+      runtimeRefreshing.value = true
+      try {
+        const [runtimeData, logData] = await Promise.all([
+          apiRequest("/api/runtime"),
+          apiRequest(`/api/logs?cursor=${logCursor.value}`),
+        ])
+        patchObject(runtime, runtimeData || {})
+        runtime.progress = runtimeData?.progress || runtime.progress
+        appendLogs(logData?.items || [])
+        logCursor.value = logData?.cursor || logCursor.value
+      } finally {
+        runtimeRefreshing.value = false
+      }
     }
 
     async function refreshCloud(options = {}) {
       const silent = !!options.silent
+      if (cloudRefreshing.value) return
+      cloudRefreshing.value = true
       if (!silent) {
         cloudLoading.value = true
       }
@@ -188,6 +198,7 @@ createApp({
           ElementPlus.ElMessage.error(error.message)
         }
       } finally {
+        cloudRefreshing.value = false
         if (!silent) {
           cloudLoading.value = false
         }

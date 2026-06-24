@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
@@ -75,19 +76,20 @@ def create_app(manager: RegWebManager | None = None) -> FastAPI:
     @app.get("/api/bootstrap")
     async def bootstrap() -> dict:
         return {
-            **runtime_manager.settings_payload(),
-            "runtime": runtime_manager.runtime_snapshot(),
-            "logs": runtime_manager.get_logs(0),
+            **await run_in_threadpool(runtime_manager.settings_payload),
+            "runtime": await run_in_threadpool(runtime_manager.runtime_snapshot),
+            "logs": await run_in_threadpool(runtime_manager.get_logs, 0),
         }
 
     @app.get("/api/settings")
     async def get_settings() -> dict:
-        return runtime_manager.settings_payload()
+        return await run_in_threadpool(runtime_manager.settings_payload)
 
     @app.put("/api/settings")
     async def save_settings(body: SaveAllRequest) -> dict:
         try:
-            return runtime_manager.save_all(
+            return await run_in_threadpool(
+                runtime_manager.save_all,
                 settings=body.settings,
                 register_config_text=body.register_config_text,
                 env_text=body.env_text,
@@ -97,15 +99,15 @@ def create_app(manager: RegWebManager | None = None) -> FastAPI:
 
     @app.get("/api/runtime")
     async def runtime() -> dict:
-        return runtime_manager.runtime_snapshot()
+        return await run_in_threadpool(runtime_manager.runtime_snapshot)
 
     @app.get("/api/logs")
     async def logs(cursor: int = 0) -> dict:
-        return runtime_manager.get_logs(cursor)
+        return await run_in_threadpool(runtime_manager.get_logs, cursor)
 
     @app.get("/api/logs/export")
     async def export_logs() -> Response:
-        filename, content = runtime_manager.export_logs_text()
+        filename, content = await run_in_threadpool(runtime_manager.export_logs_text)
         return Response(
             content,
             media_type="text/plain; charset=utf-8",
@@ -115,7 +117,7 @@ def create_app(manager: RegWebManager | None = None) -> FastAPI:
     @app.get("/api/cloud-summary")
     async def cloud_summary() -> dict:
         try:
-            return runtime_manager.cloud_summary()
+            return await run_in_threadpool(runtime_manager.cloud_summary)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail={"error": str(exc)}) from exc
         except Exception as exc:
@@ -124,7 +126,7 @@ def create_app(manager: RegWebManager | None = None) -> FastAPI:
     @app.post("/api/actions/proxy/test")
     async def test_proxy(body: ProxyTestRequest | None = None) -> dict:
         try:
-            return runtime_manager.proxy_test(proxy=(body.proxy if body else ""))
+            return await run_in_threadpool(runtime_manager.proxy_test, proxy=(body.proxy if body else ""))
         except Exception as exc:
             raise HTTPException(status_code=502, detail={"error": str(exc)}) from exc
 

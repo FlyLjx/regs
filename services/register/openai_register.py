@@ -7,6 +7,7 @@ import os
 import random
 import re
 import secrets
+import socket
 import string
 import threading
 import time
@@ -166,9 +167,19 @@ def _warp_enabled(settings: dict[str, Any] | None = None) -> bool:
     return bool(source.get("enable_warp_registration"))
 
 
+def _warp_proxy_available(host: str = "warp", port: int = 1080, timeout: float = 1.5) -> bool:
+    try:
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except OSError:
+        return False
+
+
 def resolve_register_proxy(settings: dict[str, Any] | None = None) -> tuple[str, str]:
     source = settings if isinstance(settings, dict) else config
     if _warp_enabled(source):
+        if not _warp_proxy_available():
+            raise RuntimeError("WARP 代理不可用，请检查 warp 容器是否正常运行")
         warp_proxy = "socks5://warp:1080"
         return warp_proxy, "WARP=socks5://warp:1080"
     runtime_profile = proxy_settings.get_profile(upstream=True)
