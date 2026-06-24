@@ -32,6 +32,7 @@ config = {
         "providers": [],
     },
     "proxy": "",
+    "enable_warp_registration": False,
     "flaresolverr": {
         "enabled": True,
         "url": "",
@@ -45,7 +46,7 @@ register_config_file = base_dir.parents[1] / "data" / "register.json"
 register_config_file = Path(os.getenv("CHATGPT2API_REGISTER_CONFIG_FILE") or register_config_file).expanduser()
 try:
     saved_config = json.loads(register_config_file.read_text(encoding="utf-8"))
-    config.update({key: saved_config[key] for key in ("mail", "proxy", "flaresolverr", "total", "threads") if key in saved_config})
+    config.update({key: saved_config[key] for key in ("mail", "proxy", "enable_warp_registration", "flaresolverr", "total", "threads") if key in saved_config})
 except Exception:
     pass
 
@@ -160,8 +161,16 @@ def _proxy_log_label(proxy: str) -> str:
     return f"代理={_redact_proxy(candidate)}"
 
 
+def _warp_enabled(settings: dict[str, Any] | None = None) -> bool:
+    source = settings if isinstance(settings, dict) else config
+    return bool(source.get("enable_warp_registration"))
+
+
 def resolve_register_proxy(settings: dict[str, Any] | None = None) -> tuple[str, str]:
     source = settings if isinstance(settings, dict) else config
+    if _warp_enabled(source):
+        warp_proxy = "socks5://warp:1080"
+        return warp_proxy, "WARP=socks5://warp:1080"
     runtime_profile = proxy_settings.get_profile(upstream=True)
     runtime_proxy = str(getattr(runtime_profile, "proxy_url", "") or "").strip()
     runtime_source = str(getattr(runtime_profile, "proxy_source", "") or "").strip()

@@ -58,6 +58,7 @@ def normalize_register_config(
     count: int | None,
     threads: int | None,
     proxy: str = "",
+    enable_warp_registration: bool = False,
     enable_flaresolverr: bool,
     flaresolverr_url: str,
 ) -> dict[str, Any]:
@@ -73,6 +74,7 @@ def normalize_register_config(
             "providers": list(mail.get("providers") or []),
         },
         "proxy": resolved_proxy,
+        "enable_warp_registration": bool(enable_warp_registration or raw.get("enable_warp_registration") or False),
         "flaresolverr": {
             "enabled": bool(enable_flaresolverr and resolved_flaresolverr_url),
             "url": resolved_flaresolverr_url,
@@ -89,6 +91,7 @@ def apply_register_config(config_data: dict[str, Any]) -> None:
         {
             "mail": config_data["mail"],
             "proxy": config_data["proxy"],
+            "enable_warp_registration": config_data["enable_warp_registration"],
             "flaresolverr": config_data["flaresolverr"],
             "total": config_data["total"],
             "threads": config_data["threads"],
@@ -328,6 +331,7 @@ def run_local_register_job(
     count: int | None = None,
     threads: int | None = None,
     proxy: str = "",
+    enable_warp_registration: bool = False,
     enable_flaresolverr: bool = False,
     flaresolverr_url: str = "",
     accounts_file: Path | None = None,
@@ -359,6 +363,7 @@ def run_local_register_job(
             count=count,
             threads=threads,
             proxy=proxy,
+            enable_warp_registration=enable_warp_registration,
             enable_flaresolverr=enable_flaresolverr,
             flaresolverr_url=str(flaresolverr_url or "").strip(),
         )
@@ -366,6 +371,7 @@ def run_local_register_job(
         logger(
             "本地注册配置："
             f"代理={'直连' if not config_data['proxy'] else config_data['proxy']}，"
+            f"WARP={'开启' if config_data['enable_warp_registration'] else '关闭'}，"
             f"FlareSolverr={'开启' if config_data['flaresolverr']['enabled'] else '关闭'}，"
             f"线程={config_data['threads']}，数量={config_data['total']}"
         )
@@ -427,6 +433,7 @@ def check_cloud_and_refill(
     count: int | None = None,
     threads: int | None = None,
     proxy: str = "",
+    enable_warp_registration: bool = False,
     enable_flaresolverr: bool = False,
     flaresolverr_url: str = "",
     upload_to_cloud: bool = True,
@@ -466,6 +473,7 @@ def check_cloud_and_refill(
             count=count,
             threads=threads,
             proxy=proxy,
+            enable_warp_registration=enable_warp_registration,
             enable_flaresolverr=enable_flaresolverr,
             flaresolverr_url=flaresolverr_url,
             upload_to_cloud=upload_to_cloud,

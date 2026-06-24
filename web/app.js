@@ -47,6 +47,7 @@ createApp({
       count: 20,
       threads: 3,
       proxy: "",
+      enable_warp_registration: false,
       server: "",
       auth_key: "",
       min_active_accounts: 60,
@@ -495,6 +496,7 @@ createApp({
 
                   <el-space wrap>
                     <el-switch v-model="settings.upload_to_cloud" inline-prompt active-text="默认上传云端" inactive-text="仅本地模式" />
+                    <el-switch v-model="settings.enable_warp_registration" inline-prompt active-text="WARP 注册开" inactive-text="WARP 注册关" />
                     <el-switch v-model="settings.enable_flaresolverr" inline-prompt active-text="FlareSolverr 开" inactive-text="FlareSolverr 关" />
                     <el-button :loading="proxyTesting" @click="testProxy">测试代理</el-button>
                   </el-space>

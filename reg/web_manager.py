@@ -23,6 +23,7 @@ DEFAULT_WEB_SETTINGS: dict[str, Any] = {
     "count": 20,
     "threads": 3,
     "proxy": "",
+    "enable_warp_registration": False,
     "server": "",
     "auth_key": "",
     "min_active_accounts": 60,
@@ -126,6 +127,7 @@ class RegWebManager:
         payload["min_active_accounts"] = _safe_int(payload.get("min_active_accounts"), 60, 1)
         payload["monitor_interval_seconds"] = _safe_int(payload.get("monitor_interval_seconds"), 300, 5)
         payload["upload_to_cloud"] = _safe_bool(payload.get("upload_to_cloud"), True)
+        payload["enable_warp_registration"] = _safe_bool(payload.get("enable_warp_registration"), False)
         payload["enable_flaresolverr"] = _safe_bool(payload.get("enable_flaresolverr"), False)
         payload["server"] = str(payload.get("server") or "").strip()
         payload["auth_key"] = str(payload.get("auth_key") or "").strip()
@@ -154,6 +156,7 @@ class RegWebManager:
         normalized["min_active_accounts"] = _safe_int(normalized.get("min_active_accounts"), 60, 1)
         normalized["monitor_interval_seconds"] = _safe_int(normalized.get("monitor_interval_seconds"), 300, 5)
         normalized["upload_to_cloud"] = _safe_bool(normalized.get("upload_to_cloud"), True)
+        normalized["enable_warp_registration"] = _safe_bool(normalized.get("enable_warp_registration"), False)
         normalized["enable_flaresolverr"] = _safe_bool(normalized.get("enable_flaresolverr"), False)
         normalized["flaresolverr_url"] = str(normalized.get("flaresolverr_url") or "").strip()
         SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -312,6 +315,7 @@ class RegWebManager:
             "count": _safe_int(settings.get("count"), 20, 1),
             "threads": _safe_int(settings.get("threads"), 3, 1),
             "proxy": str(settings.get("proxy") or "").strip(),
+            "enable_warp_registration": _safe_bool(settings.get("enable_warp_registration"), False),
             "enable_flaresolverr": _safe_bool(settings.get("enable_flaresolverr"), False),
             "flaresolverr_url": str(settings.get("flaresolverr_url") or "").strip(),
             "upload_to_cloud": _safe_bool(settings.get("upload_to_cloud"), True),

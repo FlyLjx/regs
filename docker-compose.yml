@@ -4,6 +4,7 @@ services:
     container_name: chatgpt2api-reg
     depends_on:
       - flaresolverr
+      - warp
     ports:
       - "8080:8080"
     environment:
@@ -23,4 +24,11 @@ services:
       CAPTCHA_SOLVER: none
     ports:
       - "8191:8191"
+    restart: unless-stopped
+
+  warp:
+    image: caomingjun/warp
+    container_name: warp
+    ports:
+      - "1080:1080"
     restart: unless-stopped

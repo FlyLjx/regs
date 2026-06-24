@@ -3,6 +3,7 @@
   "count": 10,
   "threads": 5,
   "proxy": "",
+  "enable_warp_registration": false,
   "server": "https://your-server.example",
   "auth_key": "replace-with-your-auth-key",
   "min_active_accounts": 60,

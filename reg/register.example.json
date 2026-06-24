@@ -19,6 +19,7 @@
     ]
   },
   "proxy": "",
+  "enable_warp_registration": false,
   "flaresolverr": {
     "preload": true,
     "url": "http://flaresolverr:8191",
