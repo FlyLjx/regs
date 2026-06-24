@@ -291,7 +291,6 @@ class RegWebManager:
         if not server or not auth_key:
             raise ValueError("请先填写云端地址和管理员密钥")
         payload = fetch_cloud_account_summary(server=server, auth_key=auth_key, proxy=proxy)
-        self._append_log(f"云端有效账号数: {int(payload.get('valid_account_count') or 0)}", level="debug")
         return payload
 
     def proxy_test(self, proxy: str = "") -> dict[str, Any]:
